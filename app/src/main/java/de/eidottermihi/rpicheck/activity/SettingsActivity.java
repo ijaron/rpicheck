@@ -33,11 +33,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.util.List;
 
 import de.eidottermihi.raspicheck.BuildConfig;
 import de.eidottermihi.raspicheck.R;
 import de.eidottermihi.rpicheck.activity.helper.Constants;
 import de.eidottermihi.rpicheck.activity.helper.LoggingHelper;
+import de.eidottermihi.rpicheck.db.DeviceDbHelper;
+import de.eidottermihi.rpicheck.db.RaspberryDeviceBean;
 import sheetrock.panda.changelog.ChangeLog;
 
 /**
@@ -63,6 +66,8 @@ public class SettingsActivity extends PreferenceActivity implements
     private static final String KEY_PREF_LOG = "pref_log";
     private static final String KEY_PREF_CHANGELOG = "pref_changelog";
     private static final String KEY_PREF_LOAD_AVG_PERIOD = "pref_load_avg";
+    private static final String KEY_PREF_IMPORT = "pref_import";
+    private static final String KEY_PREF_EXPORT = "pref_export";
 
     private static final Logger LOGGER = LoggerFactory
             .getLogger(SettingsActivity.class);
@@ -77,6 +82,8 @@ public class SettingsActivity extends PreferenceActivity implements
         prefLog.setOnPreferenceClickListener(this);
         Preference prefChangelog = findPreference(KEY_PREF_CHANGELOG);
         prefChangelog.setOnPreferenceClickListener(this);
+        Preference prefExport = findPreference(KEY_PREF_EXPORT);
+        prefExport.setOnPreferenceClickListener(this);
 
         findPreference("pref_app_version").setSummary(BuildConfig.VERSION_NAME);
 
@@ -138,27 +145,45 @@ public class SettingsActivity extends PreferenceActivity implements
 
     @Override
     public boolean onPreferenceClick(Preference preference) {
+        LOGGER.debug("Preference[key='{}'] clicked.", preference.getKey());
         boolean clickHandled = false;
         if (preference.getKey().equals(KEY_PREF_LOG)) {
-            LOGGER.trace("View log was clicked.");
+            showLog();
             clickHandled = true;
-            File log = new File(LOG_LOCATION);
-            if (log.exists()) {
-                final Intent intent = new Intent();
-                intent.setDataAndType(Uri.fromFile(log), "text/plain");
-                intent.setAction(android.content.Intent.ACTION_VIEW);
-                startActivity(intent);
-            } else {
-                Toast.makeText(this, "Log file does not exist.",
-                        Toast.LENGTH_LONG).show();
-            }
         } else if (preference.getKey().equals(KEY_PREF_CHANGELOG)) {
-            LOGGER.trace("View changelog was clicked.");
+            showChangelog();
             clickHandled = true;
-            ChangeLog cl = new ChangeLog(this);
-            cl.getFullLogDialog().show();
+        } else if(preference.getKey().equals(KEY_PREF_EXPORT)){
+            exportDevicesToSdCard();
+            clickHandled = true;
         }
         return clickHandled;
+    }
+
+    private void exportDevicesToSdCard() {
+        DeviceDbHelper dbHelper = new DeviceDbHelper(this);
+        List<RaspberryDeviceBean> devices = dbHelper.readAll();
+        LOGGER.info("Exporting {} devices to external storage", devices.size());
+    }
+
+    private void showChangelog() {
+        LOGGER.trace("View changelog was clicked.");
+        ChangeLog cl = new ChangeLog(this);
+        cl.getFullLogDialog().show();
+    }
+
+    private void showLog() {
+        LOGGER.trace("View log was clicked.");
+        File log = new File(LOG_LOCATION);
+        if (log.exists()) {
+            final Intent intent = new Intent();
+            intent.setDataAndType(Uri.fromFile(log), "text/plain");
+            intent.setAction(Intent.ACTION_VIEW);
+            startActivity(intent);
+        } else {
+            Toast.makeText(this, "Log file does not exist.",
+                    Toast.LENGTH_LONG).show();
+        }
     }
 
 }

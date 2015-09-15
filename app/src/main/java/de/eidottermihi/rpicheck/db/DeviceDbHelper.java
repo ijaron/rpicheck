@@ -1,16 +1,16 @@
 /**
  * Copyright (C) 2015  RasPi Check Contributors
- *
+ * <p/>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ * <p/>
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -27,7 +27,9 @@ import android.provider.BaseColumns;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
 import de.eidottermihi.rpicheck.activity.NewRaspiAuthActivity;
 import de.eidottermihi.rpicheck.activity.helper.CursorHelper;
@@ -271,6 +273,27 @@ public class DeviceDbHelper extends SQLiteOpenHelper {
             LOGGER.warn("Device with id = {} is not in db.", id);
             return null;
         }
+    }
+
+    public List<RaspberryDeviceBean> readAll() {
+        LOGGER.trace("Reading all devices");
+        List<RaspberryDeviceBean> devices = new ArrayList<>();
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor cursor = db.query(DEVICES_TABLE_NAME, new String[]{COLUMN_ID, COLUMN_NAME,
+                        COLUMN_DESCRIPTION, COLUMN_HOST, COLUMN_USER, COLUMN_PASSWD,
+                        COLUMN_SUDOPW, COLUMN_SSHPORT, COLUMN_CREATED_AT, COLUMN_MODIFIED_AT,
+                        COLUMN_SERIAL, COLUMN_AUTH_METHOD, COLUMN_KEYFILE_PATH,
+                        COLUMN_KEYFILE_PASS},
+                null, null, null, null, null, null);
+        if (cursor.moveToFirst()) {
+            do {
+                final RaspberryDeviceBean bean = CursorHelper.readDevice(cursor);
+                devices.add(bean);
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        db.close();
+        return devices;
     }
 
     /**

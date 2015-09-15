@@ -38,6 +38,16 @@
             android:summary="@string/pref_load_avg_summary"
             android:title="@string/pref_load_avg_title"/>
     </PreferenceCategory>
+    <PreferenceCategory android:title="Backup / Restore">
+        <Preference
+            android:key="pref_export"
+            android:summary="Backup your Pis to SD card"
+            android:title="Backup"/>
+        <Preference
+            android:key="pref_import"
+            android:summary="Restore Pis from SD card"
+            android:title="Restore"/>
+    </PreferenceCategory>
     <PreferenceCategory android:title="@string/pref_group_log">
         <Preference
             android:key="pref_log"
