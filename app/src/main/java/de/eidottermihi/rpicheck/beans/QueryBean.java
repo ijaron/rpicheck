@@ -1,19 +1,25 @@
 /**
- * Copyright (C) 2016  RasPi Check Contributors
+ * MIT License
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ * Copyright (c) 2018  RasPi Check Contributors
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
  *
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  */
 package de.eidottermihi.rpicheck.beans;
 
@@ -26,6 +32,7 @@ import de.eidottermihi.rpicheck.ssh.beans.DiskUsageBean;
 import de.eidottermihi.rpicheck.ssh.beans.MemoryBean;
 import de.eidottermihi.rpicheck.ssh.beans.NetworkInterfaceInformation;
 import de.eidottermihi.rpicheck.ssh.beans.ProcessBean;
+import de.eidottermihi.rpicheck.ssh.beans.RaspiMemoryBean;
 import de.eidottermihi.rpicheck.ssh.beans.VcgencmdBean;
 import de.eidottermihi.rpicheck.ssh.impl.RaspiQueryException;
 
@@ -37,12 +44,12 @@ public class QueryBean implements Serializable {
     private Date lastUpdate;
     private String startup;
     private String avgLoad;
-    private MemoryBean totalMem;
-    private MemoryBean freeMem;
+    private RaspiMemoryBean memoryBean;
     private String serialNo;
     private List<DiskUsageBean> disks;
     private String distri;
     private List<ProcessBean> processes;
+    private String systemtime;
     private RaspiQueryException exception;
     private List<String> errorMessages;
 
@@ -68,17 +75,6 @@ public class QueryBean implements Serializable {
         return lastUpdate;
     }
 
-    @Override
-    public String toString() {
-        return "QueryBean [vcgencmdInfo=" + vcgencmdInfo + ", networkInfo="
-                + networkInfo + ", lastUpdate=" + lastUpdate + ", startup="
-                + startup + ", avgLoad=" + avgLoad + ", totalMem=" + totalMem
-                + ", freeMem=" + freeMem + ", serialNo=" + serialNo
-                + ", disks=" + disks + ", distri=" + distri + ", processes="
-                + processes + ", exception=" + exception + ", errorMessages="
-                + errorMessages + "]";
-    }
-
     public void setLastUpdate(Date lastUpdate) {
         this.lastUpdate = lastUpdate;
     }
@@ -99,24 +95,6 @@ public class QueryBean implements Serializable {
 
     public void setAvgLoad(String avgLoad) {
         this.avgLoad = avgLoad;
-    }
-
-    @Exported("totalMemory")
-    public MemoryBean getTotalMem() {
-        return totalMem;
-    }
-
-    public void setTotalMem(MemoryBean totalMem) {
-        this.totalMem = totalMem;
-    }
-
-    @Exported("freeMemory")
-    public MemoryBean getFreeMem() {
-        return freeMem;
-    }
-
-    public void setFreeMem(MemoryBean freeMem) {
-        this.freeMem = freeMem;
     }
 
     @Exported("serial")
@@ -171,4 +149,40 @@ public class QueryBean implements Serializable {
         this.errorMessages = errorMessages;
     }
 
+    @Exported("systemtime")
+    public String getSystemtime() {
+        return systemtime;
+    }
+
+    public void setSystemtime(String systemtime) {
+        this.systemtime = systemtime;
+    }
+
+    @Override
+    public String toString() {
+        return "QueryBean{" +
+                "vcgencmdInfo=" + vcgencmdInfo +
+                ", networkInfo=" + networkInfo +
+                ", lastUpdate=" + lastUpdate +
+                ", startup='" + startup + '\'' +
+                ", avgLoad='" + avgLoad + '\'' +
+                ", serialNo='" + serialNo + '\'' +
+                ", disks=" + disks +
+                ", distri='" + distri + '\'' +
+                ", processes=" + processes +
+                ", systemtime='" + systemtime + '\'' +
+                ", memory='" + memoryBean + '\'' +
+                ", exception=" + exception +
+                ", errorMessages=" + errorMessages +
+                '}';
+    }
+
+    @Exported("memory")
+    public RaspiMemoryBean getMemoryBean(){
+        return this.memoryBean;
+    }
+
+    public void setMemoryBean(RaspiMemoryBean memoryBean) {
+        this.memoryBean = memoryBean;
+    }
 }

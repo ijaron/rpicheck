@@ -1,19 +1,25 @@
 /**
- * Copyright (C) 2016  RasPi Check Contributors
+ * MIT License
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ * Copyright (c) 2018  RasPi Check Contributors
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
  *
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  */
 package de.eidottermihi.rpicheck.activity;
 
@@ -25,6 +31,7 @@ import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceManager;
+import android.support.v4.content.FileProvider;
 import android.widget.Toast;
 
 import org.slf4j.Logger;
@@ -53,6 +60,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements
     public static final String KEY_PREF_QUERY_HIDE_ROOT_PROCESSES = "pref_query_hide_root";
     public static final String KEY_PREF_FREQUENCY_UNIT = "pref_frequency_unit";
     public static final String KEY_PREF_DEBUG_LOGGING = "pref_debug_log";
+    public static final String KEY_PREF_QUERY_SHOW_SYSTEM_TIME = "pref_query_show_system_time";
 
     private static final String KEY_PREF_LOG = "pref_log";
     private static final String KEY_PREF_CHANGELOG = "pref_changelog";
@@ -140,10 +148,11 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements
             if (logfilePath != null) {
                 File log = new File(logfilePath);
                 if (log.exists()) {
-                    final Intent intent = new Intent();
-                    intent.setDataAndType(Uri.fromFile(log), "text/plain");
-                    intent.setAction(android.content.Intent.ACTION_VIEW);
-                    startActivity(intent);
+                    final Intent openLogFileIntent = new Intent(Intent.ACTION_VIEW);
+                    Uri logfileUri = FileProvider.getUriForFile(this, this.getApplicationContext().getPackageName() + ".provider", log);
+                    openLogFileIntent.setDataAndType(logfileUri, "text/plain");
+                    openLogFileIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                    startActivity(openLogFileIntent);
                 } else {
                     Toast.makeText(this, "Log file does not exist.",
                             Toast.LENGTH_LONG).show();

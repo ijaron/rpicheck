@@ -19,6 +19,55 @@
     </style>
   </head>
   <body>
+$ 1.8.9
+  % Version 1.8.9
+  _ 2018-01-27
+  * Fixed crash on Android 5.0
+$ 1.8.8
+  % Version 1.8.8
+  _ 2018-01-18
+  * Fixed widget not updating on Android Oreo
+  * Fixed crash related to log configuration
+$ 1.8.7
+  % Version 1.8.7
+  _ 2018-01-14
+  * Fixed that opening the log file could lead to app crashing
+  * Widget is not vertically resizable
+$ 1.8.6
+  % Version 1.8.6
+  _ 2018-01-09
+  * Fixed publickey authentification not working with PKCS#8 Keyfiles
+  * Use '/proc/net/wireless' as fallback for WiFi signal quality when 'iwconfig' is not available
+$ 1.8.5
+  % Version 1.8.5
+  _ 2018-01-07
+  * Fixed wireless interfaces signal quality missing
+  * Updated chinese translation (thanks LJason77 for the PR)
+$ 1.8.4
+  % Version 1.8.4
+  _ 2018-01-05
+  * Fixed widget font color
+$ 1.8.3
+  % Version 1.8.3
+  _ 2018-01-04
+  * Fixed WiFi signal quality/link level sometimes incorrect (thanks Kabuse, #155)
+  * Added support for systemd v197 style network interface names (thanks x2k13, #150)
+  * Added support for ED25519 SSH keys (you have to place private AND public key on your phone to make this work)
+  * Fixed unability to select hidden files as SSH keys (thanks ogarcia, #139)
+  * Added support for stronger encryption (like ED25519)
+  * Updated to latest version of SSHJ library
+  * Various translation updates
+$ 1.8.2
+  % Version 1.8.2
+  _ 2017-08-28
+  * Show system time under SYSTEM (must be enabled in settings)
+  * Fixed translations with UTF-8 characters (thanks LJason77 for the PR)
+  * Attempt to make reboot/halt more robust
+$ 1.8.1
+  % Version 1.8.1
+  _ 2017-08-26
+  * Timeout of custom commands is now customizable to support long running commands
+  * Limit length of disk filesystem to 20 characters
 $ 1.8.0
   % Version 1.8.0
   _ 2016-02-03

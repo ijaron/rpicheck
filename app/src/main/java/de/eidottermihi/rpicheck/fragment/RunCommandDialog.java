@@ -1,19 +1,25 @@
 /**
- * Copyright (C) 2016  RasPi Check Contributors
+ * MIT License
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ * Copyright (c) 2018  RasPi Check Contributors
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
  *
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  */
 package de.eidottermihi.rpicheck.fragment;
 
@@ -130,8 +136,8 @@ public class RunCommandDialog extends DialogFragment {
             // ssh password
             putLine("Authenticating with password ...");
             final String pass = device.getPass();
-            new SSHCommandTask().execute(host, user, pass, port, sudoPass,
-                    null, null, command.getCommand());
+            new SSHCommandTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, host, user, pass, port, sudoPass,
+                    null, null, command.getCommand(), String.valueOf(command.getTimeout()));
         } else if (device.usesAuthentificationMethod(RaspberryDeviceBean.AUTH_PUBLIC_KEY)) {
             putLine("Authenticating with private key ...");
             // keyfile
@@ -139,8 +145,8 @@ public class RunCommandDialog extends DialogFragment {
             if (keyfilePath != null) {
                 final File privateKey = new File(keyfilePath);
                 if (privateKey.exists()) {
-                    new SSHCommandTask().execute(host, user, null, port,
-                            sudoPass, keyfilePath, null, command.getCommand());
+                    new SSHCommandTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, host, user, null, port,
+                            sudoPass, keyfilePath, null, command.getCommand(), String.valueOf(command.getTimeout()));
                 } else {
                     putLine("ERROR - No keyfile was found on path " + keyfilePath);
                 }
@@ -155,9 +161,9 @@ public class RunCommandDialog extends DialogFragment {
                 final File privateKey = new File(keyfilePath);
                 if (privateKey.exists()) {
                     if (!Strings.isNullOrEmpty(this.passphrase)) {
-                        new SSHCommandTask().execute(host, user, null, port,
+                        new SSHCommandTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, host, user, null, port,
                                 sudoPass, keyfilePath, this.passphrase,
-                                command.getCommand());
+                                command.getCommand(), String.valueOf(command.getTimeout()));
                     } else {
                         putLine("ERROR - No passphrase specified.");
                     }
@@ -206,6 +212,7 @@ public class RunCommandDialog extends DialogFragment {
             final String privateKeyPath = params[5];
             final String privateKeyPass = params[6];
             final String command = params[7];
+            final int timeout = Integer.parseInt(params[8]);
             try {
                 if (privateKeyPath != null) {
                     File f = new File(privateKeyPath);
@@ -221,10 +228,11 @@ public class RunCommandDialog extends DialogFragment {
                     raspiQuery.connect(pass);
                 }
                 publishProgress("Connection established.");
-                String output = raspiQuery.run(command);
+                String output = raspiQuery.run(command, timeout);
                 publishProgress(output);
                 publishProgress("Connection closed.");
             } catch (RaspiQueryException e) {
+                LOGGER.error("Exception occured during command execution.", e);
                 publishProgress("ERROR - " + e.getMessage());
                 if (e.getCause() != null) {
                     publishProgress("Reason: " + e.getCause().getMessage());
@@ -259,7 +267,6 @@ public class RunCommandDialog extends DialogFragment {
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putBoolean("didRun", this.didRun);
-
     }
 
 }

@@ -1,19 +1,25 @@
 /**
- * Copyright (C) 2016  RasPi Check Contributors
+ * MIT License
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ * Copyright (c) 2018  RasPi Check Contributors
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
  *
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  */
 package de.eidottermihi.rpicheck.activity.helper;
 
@@ -36,13 +42,17 @@ public class Validation {
      * Validates if user input is valid.
      *
      * @param context
-     * @param cmd
+     * @param commandEditText
+     * @param timeoutEditText
      * @return true if valid
      */
-    public boolean validateNewCmdData(Context context, EditText cmd) {
+    public boolean validateNewCmdData(Context context, EditText commandEditText, EditText timeoutEditText) {
         boolean dataValid = true;
-        if (!checkNonOptionalTextField(cmd,
+        if (!checkNonOptionalTextField(commandEditText,
                 context.getString(R.string.validation_command_blank))) {
+            dataValid = false;
+        }
+        if (!validateTimeout(timeoutEditText)) {
             dataValid = false;
         }
         return dataValid;
@@ -176,6 +186,25 @@ public class Validation {
                     R.string.validation_msg_port));
         }
         return portValid;
+    }
+
+    public boolean validateTimeout(EditText timeoutEditText) {
+        boolean timeoutValid = true;
+        // minimum 1
+        try {
+            final Integer timeout = Integer.parseInt(timeoutEditText.getText()
+                    .toString());
+            if (timeout < 1) {
+                timeoutValid = false;
+            }
+        } catch (NumberFormatException e) {
+            timeoutValid = false;
+        }
+        if (!timeoutValid) {
+            timeoutEditText.setError(timeoutEditText.getContext().getText(
+                    R.string.validation_msg_timeout));
+        }
+        return timeoutValid;
     }
 
 }

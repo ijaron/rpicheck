@@ -1,4 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+
+    Copyright (C) 2017  RasPi Check Contributors
+
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License along
+    with this program; if not, write to the Free Software Foundation, Inc.,
+    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+-->
 <resources
     xmlns:tools="http://schemas.android.com/tools"
     tools:locale="en">
@@ -31,15 +50,15 @@
     <string name="pref_group_display_settings_title">Display settings</string>
     <string name="last_update">Last refresh</string>
     <string name="no_device_available">Please add a Raspberry Pi first.</string>
-    <string name="new_raspi_text">Enter your Raspberry Pi device informations.</string>
+    <string name="new_raspi_text">Enter your Raspberry Pi device information.</string>
     <string name="ssh_port">SSH port</string>
     <string name="new_raspi_description">Additional description</string>
-    <string name="new_raspi_description_hint">Add additional description here..</string>
+    <string name="new_raspi_description_hint">Add additional description here...</string>
     <string name="overclocking_header">Overclocking</string>
     <string name="system_header">System</string>
     <string name="uptime_started">Startup</string>
     <string name="average_load">Average load</string>
-    <string name="total_memory">Total memory</string>
+    <string name="total_memory">Main memory</string>
     <string name="free_memory">Free memory</string>
     <string name="cpu_serial">Serial No</string>
     <string name="ip_addr_label">IP address</string>
@@ -52,7 +71,7 @@
     <string name="please_add_a_raspberry_pi">Please add a Raspberry Pi.</string>
     <string name="activity_title_edit_raspi">Edit Pi</string>
     <string name="disk_header_mounted_on">Mounted on</string>
-    <string name="temperature_scala_summary">Temperature scala to use (Celsius, Fahrenheit)</string>
+    <string name="temperature_scala_summary">Temperature scale (Celsius, Fahrenheit)</string>
     <string name="process_header">Processes</string>
     <string name="header_pid" translatable="false">PID</string>
     <string name="header_tty" translatable="false">TTY</string>
@@ -86,7 +105,7 @@
     <string name="pref_dev_email">Contact developer</string>
     <string name="pref_dev_email_summary" translatable="false">eidottermihi@gmail.com</string>
     <string name="pref_rate_app">Rate app</string>
-    <string name="pref_rate_app_summary">If you like RasPi Check, take a moment and rate it.</string>
+    <string name="pref_rate_app_summary">If you like RasPi Check, please take a moment to rate it.</string>
     <string name="pref_version">Version</string>
     <string name="shutdown_type_title">Shutdown options</string>
     <string name="halt_success">Halt command sent.</string>
@@ -103,7 +122,7 @@
     <string name="connection_failed">Could not establish a connection. Please check hostname and your network.</string>
     <string name="errormessages_dialog_title">Sorry...</string>
     <string name="transport_exception">A transport exception occurred. Please try again.</string>
-    <string name="unexpected_exception">A unexcepted exception occurred. Please try again.</string>
+    <string name="unexpected_exception">An unexcepted exception occurred. Please try again.</string>
     <string name="exception_vcgencmd">The tool \'vcgencmd\' was not found on your Pi. Make sure it is located under \'/usr/bin\' or \'/opt/vc/bin\' and your SSH user is in group \'video\'.</string>
     <string name="weird_exception">Something weird went wrong. Please take a look at the log file.</string>
     <string name="changelog_full_title">Change Log</string>
@@ -122,7 +141,7 @@
     <string name="pref_debug_log_summary_off">Debug level logging disabled.</string>
     <string name="pref_debug_log_title">Debug logging</string>
     <string name="new_raspi_continue">Continue</string>
-    <string name="new_raspi_auth_method">Authentification method</string>
+    <string name="new_raspi_auth_method">Authentication method</string>
     <string name="raspi_key_password_hint">Key passphrase</string>
     <string name="raspi_key_password_empty">Key passphrase cannot be blank.</string>
     <string name="raspi_auth_keyfile_hint">Private key (PKCS8/OpenSSH format)</string>
@@ -186,8 +205,8 @@
     <string name="placeholder_special_hint">Special placeholders:</string>
 
     <string name="pref_load_avg_default" translatable="false">FIVE_MINUTES</string>
-    <string name="pref_load_avg_summary">Time period for load average calculation.</string>
-    <string name="pref_load_avg_title">Load Average time period</string>
+    <string name="pref_load_avg_summary">Time period for average load calculation.</string>
+    <string name="pref_load_avg_title">Average load time period</string>
     <string name="widget_pi">Choose Raspberry Pi</string>
     <string name="widget_configure_title">Configure widget</string>
     <string name="widget_update_interval">Update interval</string>
@@ -223,5 +242,16 @@
     <string name="share_body"># Information for Pi \'%1$s\' - %2$s - %3$s\n\n%4$s\n\nThis information has been queried with RasPi Check (version: %5$s) for Android.</string>
     <string name="permission_private_key_error">Permission to read the private key file denied. Can\'t execute query.</string>
     <string name="widget_no_read_permission">RasPi Check has no permission to access the external storage. Can\'t update widget.</string>
+
+    <string name="label_cmd_timeout">Timeout in seconds</string>
+    <string name="timeout_hint_title">Timeout:</string>
+    <string name="timeout_hint_text">Customize the default timeout of 60 seconds if your command takes longer to complete.</string>
+    <string name="validation_msg_timeout">must be at least 1 second</string>
+    <string name="pref_query_show_system_time_summary">Check to show system time.</string>
+    <string name="pref_query_show_system_time_summaryOff">System time is hidden.</string>
+    <string name="pref_query_show_system_time_summaryOn">System time is shown.</string>
+    <string name="pref_query_show_system_time_title">Show system time</string>
+    <string name="systemtime">System time</string>
+    <string name="total_swap">Swap memory</string>
 
 </resources>

@@ -1,19 +1,25 @@
 /**
- * Copyright (C) 2016  RasPi Check Contributors
+ * MIT License
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ * Copyright (c) 2018  RasPi Check Contributors
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
  *
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  */
 package de.eidottermihi.rpicheck.db;
 
@@ -36,7 +42,7 @@ public class DeviceDbHelper extends SQLiteOpenHelper {
     /**
      * Current database version.
      */
-    private static final int DATABASE_VERSION = 9;
+    private static final int DATABASE_VERSION = 10;
     private static final Logger LOGGER = LoggerFactory
             .getLogger(DeviceDbHelper.class);
     private static final String DATABASE_NAME = "RASPIQUERY";
@@ -97,11 +103,13 @@ public class DeviceDbHelper extends SQLiteOpenHelper {
     private static final String COLUMN_CMD_COMMAND = "command";
     private static final String COLUMN_CMD_FLAGOUTPUT = "flag_output";
     private static final String COLUMN_CMD_NAME = "name";
+    private static final String COLUMN_CMD_TIMEOUT = "timeout";
     private static final String COMMAND_TABLE_CREATE = "CREATE TABLE "
             + COMMANDS_TABLE_NAME + " (" + COLUMN_ID
             + " INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " + COLUMN_CMD_NAME
             + " TEXT NOT NULL, " + COLUMN_CMD_COMMAND + " TEXT NOT NULL, "
-            + COLUMN_CMD_FLAGOUTPUT + " INTEGER NOT NULL)";
+            + COLUMN_CMD_FLAGOUTPUT + " INTEGER NOT NULL, " + COLUMN_CMD_TIMEOUT
+            + " INTEGER NOT NULL DEFAULT 20" + ")";
 
     public DeviceDbHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -148,14 +156,24 @@ public class DeviceDbHelper extends SQLiteOpenHelper {
             upgradeV8ToV9(db);
             migrationAvailable = true;
         }
+        if (oldVersion == 9 && newVersion == 10) {
+            upgradeV9ToV10(db);
+            migrationAvailable = true;
+        }
         if (!migrationAvailable) {
             // dropping all tables (data will be lost *sad* )
             LOGGER.warn("No migration for database upgrade from version {} to version {} available. Setting up whole new database, all current data will be lost, sorry!");
             db.execSQL("DROP TABLE " + DEVICES_TABLE_NAME);
             db.execSQL("DROP TABLE " + QUERIES_TABLE_NAME);
+            db.execSQL("DROP TABLE " + COMMANDS_TABLE_NAME);
             // run initial setup
             this.onCreate(db);
         }
+    }
+
+    private void upgradeV9ToV10(SQLiteDatabase db) {
+        LOGGER.info("Upgrading database from version 9 to version 10: alter commands table, add custom timeout value.");
+        db.execSQL("ALTER TABLE " + COMMANDS_TABLE_NAME + " ADD COLUMN " + COLUMN_CMD_TIMEOUT + " INTEGER NOT NULL DEFAULT 20");
     }
 
     private void upgradeV8ToV9(SQLiteDatabase db) {
@@ -332,6 +350,7 @@ public class DeviceDbHelper extends SQLiteOpenHelper {
         values.put(COLUMN_CMD_NAME, command.getName());
         values.put(COLUMN_CMD_COMMAND, command.getCommand());
         values.put(COLUMN_CMD_FLAGOUTPUT, command.isShowOutput());
+        values.put(COLUMN_CMD_TIMEOUT, command.getTimeout());
         long id = db.insert(COMMANDS_TABLE_NAME, null, values);
         db.close();
         return readCommand(id);
@@ -341,7 +360,7 @@ public class DeviceDbHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
         CommandBean bean = null;
         Cursor cursor = db.query(COMMANDS_TABLE_NAME, new String[]{COLUMN_ID,
-                        COLUMN_CMD_NAME, COLUMN_CMD_COMMAND, COLUMN_CMD_FLAGOUTPUT},
+                        COLUMN_CMD_NAME, COLUMN_CMD_COMMAND, COLUMN_CMD_FLAGOUTPUT, COLUMN_CMD_TIMEOUT},
                 COLUMN_ID + "=" + id, null, null, null, COLUMN_ID);
         if (cursor.moveToFirst()) {
             bean = CursorHelper.readCommand(cursor);
@@ -360,6 +379,7 @@ public class DeviceDbHelper extends SQLiteOpenHelper {
         values.put(COLUMN_CMD_NAME, command.getName());
         values.put(COLUMN_CMD_COMMAND, command.getCommand());
         values.put(COLUMN_CMD_FLAGOUTPUT, command.isShowOutput());
+        values.put(COLUMN_CMD_TIMEOUT, command.getTimeout());
         int rowsUpdate = db.update(COMMANDS_TABLE_NAME, values, COLUMN_ID
                 + " = ?", new String[]{command.getId() + ""});
         db.close();

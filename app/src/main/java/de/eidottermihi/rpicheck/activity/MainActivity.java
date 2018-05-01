@@ -1,19 +1,25 @@
 /**
- * Copyright (C) 2016  RasPi Check Contributors
+ * MIT License
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ * Copyright (c) 2018  RasPi Check Contributors
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
  *
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  */
 package de.eidottermihi.rpicheck.activity;
 
@@ -42,6 +48,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.RelativeLayout;
 import android.widget.SpinnerAdapter;
 import android.widget.TableLayout;
 import android.widget.TableRow;
@@ -127,12 +134,16 @@ public class MainActivity extends InjectionAppCompatActivity implements
     private TextView averageLoadText;
     @InjectView(R.id.totalMemoryText)
     private TextView totalMemoryText;
-    @InjectView(R.id.freeMemoryText)
-    private TextView freeMemoryText;
+    @InjectView(R.id.totalSwapText)
+    private TextView totalSwapText;
     @InjectView(R.id.cpuSerialText)
     private TextView serialNoText;
     @InjectView(R.id.distriText)
     private TextView distriText;
+    @InjectView(R.id.systemtimeText)
+    private TextView systemtimeText;
+    @InjectView(R.id.systemtimeLayout)
+    private RelativeLayout systemtimeLayout;
     @InjectView(R.id.diskTable)
     private TableLayout diskTable;
     @InjectView(R.id.processTable)
@@ -229,10 +240,11 @@ public class MainActivity extends InjectionAppCompatActivity implements
         uptimeText.setText("");
         averageLoadText.setText("");
         totalMemoryText.setText("");
-        freeMemoryText.setText("");
+        totalSwapText.setText("");
         distriText.setText("");
         serialNoText.setText("");
         lastUpdateText.setText("");
+        systemtimeText.setText("");
         // tables
         updateDiskTable(null);
         updateNetworkTable(null);
@@ -250,6 +262,14 @@ public class MainActivity extends InjectionAppCompatActivity implements
         coreVoltText.setText(FormatHelper.formatDecimal(currentDevice.getLastQueryData().getVcgencmdInfo().getCoreVolts()));
         firmwareText.setText(result.getVcgencmdInfo().getVersion());
         lastUpdateText.setText(SimpleDateFormat.getDateTimeInstance().format(result.getLastUpdate()));
+        final boolean showSystemtime = sharedPrefs.getBoolean(SettingsActivity.KEY_PREF_QUERY_SHOW_SYSTEM_TIME, false);
+        if (showSystemtime) {
+            systemtimeLayout.setVisibility(View.VISIBLE);
+            systemtimeText.setText(result.getSystemtime());
+        } else {
+            systemtimeText.setText("");
+            systemtimeLayout.setVisibility(View.GONE);
+        }
         // uptime and average load may contain errors
         if (result.getAvgLoad() != null) {
             averageLoadText.setText(result.getAvgLoad());
@@ -257,11 +277,24 @@ public class MainActivity extends InjectionAppCompatActivity implements
         if (result.getStartup() != null) {
             uptimeText.setText(result.getStartup());
         }
-        if (result.getFreeMem() != null) {
-            freeMemoryText.setText(result.getFreeMem().humanReadableByteCount(false));
-        }
-        if (result.getTotalMem() != null) {
-            totalMemoryText.setText(result.getTotalMem().humanReadableByteCount(false));
+        if (result.getMemoryBean() != null) {
+            if (result.getMemoryBean().getErrorMessage() == null) {
+                String format = "%s/%s (%s)";
+                String ram = String.format(format,
+                        result.getMemoryBean().getTotalUsed().humanReadableByteCount(false),
+                        result.getMemoryBean().getTotalMemory().humanReadableByteCount(false),
+                        SSHQueryTask.NUMBER_FORMAT.format(result.getMemoryBean().getMemoryPercentageUsed())
+                );
+                totalMemoryText.setText(ram);
+                String swap = String.format(format,
+                        result.getMemoryBean().getSwapUsed().humanReadableByteCount(false),
+                        result.getMemoryBean().getSwapMemory().humanReadableByteCount(false),
+                        SSHQueryTask.NUMBER_FORMAT.format(result.getMemoryBean().getSwapPercentageUsed())
+                );
+                totalSwapText.setText(swap);
+            } else {
+                result.getErrorMessages().add(result.getMemoryBean().getErrorMessage());
+            }
         }
         serialNoText.setText(result.getSerialNo());
         distriText.setText(result.getDistri());
@@ -600,7 +633,7 @@ public class MainActivity extends InjectionAppCompatActivity implements
             if (currentDevice.usesAuthentificationMethod(RaspberryDeviceBean.AUTH_PASSWORD)) {
                 final String pass = currentDevice.getPass();
                 if (pass != null) {
-                    new SSHShutdownTask(this).execute(host, user, pass, port, sudoPass, type, null, null);
+                    new SSHShutdownTask(this).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, host, user, pass, port, sudoPass, type, null, null);
                 } else {
                     Toast.makeText(this, R.string.no_password_specified, Toast.LENGTH_LONG).show();
                 }
@@ -616,18 +649,18 @@ public class MainActivity extends InjectionAppCompatActivity implements
                     } else {
                         final File privateKey = new File(keyfilePath);
                         if (privateKey.exists()) {
-                            new SSHShutdownTask(this).execute(host, user, null, port, sudoPass, type, keyfilePath, null);
+                            new SSHShutdownTask(this).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, host, user, null, port, sudoPass, type, keyfilePath, null);
                         } else {
-                            Toast.makeText(this, "Cannot find keyfile at location: " + keyfilePath, Toast.LENGTH_LONG);
+                            Toast.makeText(this, "Cannot find keyfile at location: " + keyfilePath, Toast.LENGTH_LONG).show();
                         }
                     }
                 } else {
-                    Toast.makeText(this, "No keyfile specified!", Toast.LENGTH_LONG);
+                    Toast.makeText(this, "No keyfile specified!", Toast.LENGTH_LONG).show();
                 }
                 if (currentDevice.usesAuthentificationMethod(RaspberryDeviceBean.AUTH_PUBLIC_KEY_WITH_PASSWORD)) {
                     if (!Strings.isNullOrEmpty(currentDevice.getKeyfilePass())) {
                         final String passphrase = currentDevice.getKeyfilePass();
-                        new SSHShutdownTask(this).execute(host, user, null, port, sudoPass, type, keyfilePath, passphrase);
+                        new SSHShutdownTask(this).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, host, user, null, port, sudoPass, type, keyfilePath, passphrase);
                     } else {
                         final String dialogType = type.equals(Constants.TYPE_REBOOT) ? PassphraseDialog.SSH_SHUTDOWN : PassphraseDialog.SSH_HALT;
                         final DialogFragment passphraseDialog = new PassphraseDialog();
@@ -727,7 +760,7 @@ public class MainActivity extends InjectionAppCompatActivity implements
                     showPullToRefreshHint();
                 }
                 // execute query in background
-                new SSHQueryTask(this, getLoadAveragePreference()).execute(host, user, pass, port, hideRoot.toString(), keyPath, keyPass);
+                new SSHQueryTask(this, getLoadAveragePreference()).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, host, user, pass, port, hideRoot.toString(), keyPath, keyPass);
             }
         } else {
             // no network available
@@ -959,17 +992,18 @@ public class MainActivity extends InjectionAppCompatActivity implements
         if (type.equals(PassphraseDialog.SSH_QUERY)) {
             // connect
             final Boolean hideRoot = sharedPrefs.getBoolean(SettingsActivity.KEY_PREF_QUERY_HIDE_ROOT_PROCESSES, true);
-            new SSHQueryTask(this, getLoadAveragePreference()).execute(currentDevice.getHost(), currentDevice.getUser(), null,
+            new SSHQueryTask(this, getLoadAveragePreference()).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,
+                    currentDevice.getHost(), currentDevice.getUser(), null,
                     currentDevice.getPort() + "", hideRoot.toString(),
                     currentDevice.getKeyfilePath(), passphrase);
         } else if (type.equals(PassphraseDialog.SSH_SHUTDOWN)) {
-            new SSHShutdownTask(this).execute(currentDevice.getHost(),
+            new SSHShutdownTask(this).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, currentDevice.getHost(),
                     currentDevice.getUser(), null,
                     currentDevice.getPort() + "", currentDevice.getSudoPass(),
                     Constants.TYPE_REBOOT, currentDevice.getKeyfilePath(),
                     passphrase);
         } else if (type.equals(PassphraseDialog.SSH_HALT)) {
-            new SSHShutdownTask(this).execute(currentDevice.getHost(),
+            new SSHShutdownTask(this).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, currentDevice.getHost(),
                     currentDevice.getUser(), null,
                     currentDevice.getPort() + "", currentDevice.getSudoPass(),
                     Constants.TYPE_HALT, currentDevice.getKeyfilePath(),

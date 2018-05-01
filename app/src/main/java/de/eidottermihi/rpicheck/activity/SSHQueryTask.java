@@ -1,19 +1,25 @@
 /**
- * Copyright (C) 2016  RasPi Check Contributors
+ * MIT License
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ * Copyright (c) 2018  RasPi Check Contributors
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
  *
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  */
 package de.eidottermihi.rpicheck.activity;
 
@@ -45,14 +51,12 @@ import de.eidottermihi.rpicheck.ssh.impl.RaspiQueryException;
  */
 public class SSHQueryTask extends AsyncTask<String, Integer, QueryBean> {
 
-    private static final Logger LOGGER = LoggerFactory
-            .getLogger(SSHQueryTask.class);
-    private static final NumberFormat NUMBER_FORMAT = NumberFormat
-            .getPercentInstance();
+    public static final NumberFormat NUMBER_FORMAT = NumberFormat.getPercentInstance();
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(SSHQueryTask.class);
 
     private final AsyncQueryDataUpdate delegate;
 
-    private IQueryService queryService;
     private LoadAveragePeriod loadAveragePeriod;
 
     public SSHQueryTask(AsyncQueryDataUpdate delegate,
@@ -71,7 +75,7 @@ public class SSHQueryTask extends AsyncTask<String, Integer, QueryBean> {
     @Override
     protected QueryBean doInBackground(String... params) {
         // create and do query
-        queryService = new RaspiQuery((String) params[0], (String) params[1],
+        IQueryService queryService = new RaspiQuery((String) params[0], (String) params[1],
                 Integer.parseInt(params[3]));
         final String pass = params[2];
         boolean hideRootProcesses = Boolean.parseBoolean(params[4]);
@@ -112,22 +116,19 @@ public class SSHQueryTask extends AsyncTask<String, Integer, QueryBean> {
             publishProgress(80);
             final List<NetworkInterfaceInformation> networkInformation = queryService
                     .queryNetworkInformation();
-            publishProgress(90);
+            publishProgress(85);
             bean.setDisks(queryService.queryDiskUsage());
-            publishProgress(95);
+            publishProgress(90);
             bean.setDistri(queryService.queryDistributionName());
+            publishProgress(95);
+            bean.setSystemtime(queryService.querySystemtime());
             queryService.disconnect();
             publishProgress(100);
             bean.setVcgencmdInfo(vcgencmdBean);
             bean.setLastUpdate(Calendar.getInstance().getTime());
             bean.setStartup(new UptimeBean(uptime).getRunningPretty());
             bean.setAvgLoad(NUMBER_FORMAT.format(loadAvg));
-            if (memory.getErrorMessage() != null) {
-                bean.getErrorMessages().add(memory.getErrorMessage());
-            } else {
-                bean.setFreeMem(memory.getTotalFree());
-                bean.setTotalMem(memory.getTotalMemory());
-            }
+            bean.setMemoryBean(memory);
             bean.setSerialNo(serialNo);
             bean.setNetworkInfo(networkInformation);
             bean.setProcesses(processes);

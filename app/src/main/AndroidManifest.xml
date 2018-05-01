@@ -3,14 +3,15 @@
     package="de.eidottermihi.raspicheck"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:versionCode="40">
+    android:versionCode="51">
 
     <!-- for SSH connection -->
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <!-- reading specified private key files for ssh connection, see NoNonsense-FilePicker docs -->
-    <uses-permission
-        android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <!-- WidgetUpdateService extends JobIntentService, which requires WAKE_LOCK pre Android O -->
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
 
     <application
         android:allowBackup="true"
@@ -85,7 +86,7 @@
 
         <!-- FilePicker Library (without Intent Filter)-->
         <activity
-            android:name="com.nononsenseapps.filepicker.FilePickerActivity"
+            android:name="de.eidottermihi.rpicheck.activity.helper.RaspiFilePickerActivity"
             android:label="@string/app_name"
             android:theme="@style/FilePickerTheme">
         </activity>
@@ -106,7 +107,19 @@
             </intent-filter>
         </activity>
 
-        <service android:name="de.eidottermihi.rpicheck.widget.WidgetUpdateService"/>
+        <service
+            android:name="de.eidottermihi.rpicheck.widget.WidgetUpdateService"
+            android:permission="android.permission.BIND_JOB_SERVICE"/>
+
+        <provider
+            android:name="android.support.v4.content.FileProvider"
+            android:authorities="${applicationId}.provider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/provider_paths"/>
+        </provider>
 
     </application>
 
