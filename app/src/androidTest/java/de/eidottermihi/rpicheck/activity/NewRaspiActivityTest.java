@@ -1,7 +1,7 @@
 /**
  * MIT License
  *
- * Copyright (c) 2018  RasPi Check Contributors
+ * Copyright (c) 2019  RasPi Check Contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,9 +23,9 @@
  */
 package de.eidottermihi.rpicheck.activity;
 
+import android.support.test.filters.LargeTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
-import android.test.suitebuilder.annotation.LargeTest;
 
 import org.junit.Rule;
 import org.junit.Test;

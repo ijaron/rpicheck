@@ -1,25 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
 
-    Copyright (C) 2017  RasPi Check Contributors
+    MIT License
 
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License, or
-    (at your option) any later version.
+    Copyright (c) 2019  RasPi Check Contributors
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+    Permission is hereby granted, free of charge, to any person obtaining a copy
+    of this software and associated documentation files (the "Software"), to deal
+    in the Software without restriction, including without limitation the rights
+    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+    copies of the Software, and to permit persons to whom the Software is
+    furnished to do so, subject to the following conditions:
 
-    You should have received a copy of the GNU General Public License along
-    with this program; if not, write to the Free Software Foundation, Inc.,
-    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+    The above copyright notice and this permission notice shall be included in all
+    copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+    SOFTWARE.
 
 -->
 <resources>
-
     <string name="app_name">RasPi Check</string>
     <string name="title_activity_main">RasPi Check</string>
     <string name="title_activity_new_raspi">Pi hinzufügen</string>
@@ -82,6 +87,7 @@
     <string name="reboot_fail">Neustart fehlgeschlagen. Überprüfe deine Verbindung und das sudo Passwort.</string>
     <string name="pref_frequency_unit_summary">Hz, MHz oder GHz</string>
     <string name="pref_frequency_unit_title">Einheit für CPU Frequenz</string>
+    <string name="firmware_version">Firmware</string>
     <string name="network_header">Netzwerk</string>
     <string name="network_interface">Schnittstelle</string>
     <string name="network_status">Status</string>
@@ -94,6 +100,7 @@
     <string name="pref_dev_email">Entwickler kontaktieren</string>
     <string name="pref_rate_app">App bewerten</string>
     <string name="pref_rate_app_summary">Wenn dir RasPi Check gefällt, nimm dir bitte einen Moment Zeit es zu bewerten.</string>
+    <string name="pref_version">Version</string>
     <string name="shutdown_type_title">Herunterfahren</string>
     <string name="halt_success">Befehl zum Anhalten gesendet.</string>
     <string name="halt_fail">Anhalten fehlgeschlagen. Überprüfe deine Verbindung und das sudo Passwort.</string>
@@ -147,7 +154,7 @@
     <string name="activity_title_new_command">Neue Befehle</string>
     <string name="activity_title_edit_command">Befehle bearbeiten</string>
     <string name="label_cmd_name">Name</string>
-    <string name="label_cmd_name_hint">z.B. \'Neustarten\'</string>
+    <string name="label_cmd_name_hint">z.B. \'reboot\'</string>
     <string name="label_cmd_command">Befehl</string>
     <string name="label_cmd_command_hint">z.B. \'shutdown -r now\'</string>
     <string name="label_cmd_show_output">Ausgabe anzeigen</string>
@@ -188,6 +195,7 @@
     <string name="widget_configure_title">Widget konfigurieren</string>
     <string name="widget_update_interval">Automatisch aktualisieren</string>
     <string name="widget_update_interval_error">Kein gültiges Aktualisierungsintervall.</string>
+    <string name="widget_key_pass_error">Sie müssen Ihre Keyfile-Passphrase speichern, da Widgets nicht danach fragen können.</string>
     <string name="widget_update_interval_zero">Muss größer als 0 sein.</string>
     <string name="widget_update_interval_five_min">5 Minuten</string>
     <string name="widget_update_interval_ten_min">10 Minuten</string>
@@ -215,6 +223,7 @@
     <string name="widget_no_read_permission">RasPi Check hat keine Berechtigung zum Lesen des privaten Schlüssels. Widget kann nicht aktualisiert werden.</string>
 
     <string name="label_cmd_timeout">Timeout in Sekunden</string>
+    <string name="timeout_hint_title">Timeout:</string>
     <string name="timeout_hint_text">Passe den Standard Timeout-Wert von 60 Sekunden an, wenn dein Befehl länger zur Durchführung benötigt.</string>
     <string name="validation_msg_timeout">Muss größer als 0 sein.</string>
     <string name="pref_query_show_system_time_summary">Zeige die Systemzeit deines Pis an.</string>
